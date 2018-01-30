@@ -1,4 +1,9 @@
 {% extends "base.html" %}        
+{% block title %}
+{% if title %}
+    | {{ title }}
+{% endif %}
+{% endblock %}
 {% block content %}
 <h1>ISAW Bibliography</h1>
         <p>There are {{count}} items in this collection.</p>

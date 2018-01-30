@@ -30,7 +30,7 @@ def homepage():
     items = isawbib_json
     count = len(items)
     items = _sort_zotero_date(items) 
-    return render_template('isaw-bibliography.html', items=items, count=count)
+    return render_template('isaw-bibliography.html', title=None, items=items, count=count)
 
 
 @app.route('/year/<year>')
@@ -41,7 +41,7 @@ def bib_by_year(year):
             items.append(item)
     count = len(items)
     items = _sort_zotero_date(items) 
-    return render_template('isaw-bibliography.html', items=items, count=count)
+    return render_template('isaw-bibliography.html', title='Year: %s' % str(year), items=items, count=count)
 
 
 @app.route('/author/<author>')
@@ -55,7 +55,7 @@ def bib_by_author(author):
                     items.append(item)
     count = len(items)
     items = _sort_zotero_date(items) 
-    return render_template('isaw-bibliography.html', items=items, count=count)
+    return render_template('isaw-bibliography.html', title='Author: %s' % author, items=items, count=count)
 
 
 @app.route('/tag/<tag>')
@@ -68,7 +68,7 @@ def bib_by_tag(tag):
                 items.append(item)
     count = len(items)
     items = _sort_zotero_date(items) 
-    return render_template('isaw-bibliography.html', items=items, count=count)
+    return render_template('isaw-bibliography.html', title='Tag: %s' % tag, items=items, count=count)
     
 
 @app.route('/json')
