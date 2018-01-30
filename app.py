@@ -16,7 +16,7 @@ def homepage():
     isawbib = z.everything(z.top())
     count = len(isawbib)
     #tags = get_tags(isawbib)
-    return render_template('isaw-bib.html', isawbib=isawbib, count=count)
+    return render_template('isaw-bibliography.html', isawbib=isawbib, count=count)
 
 if __name__ == '__main__':
     app.run()
