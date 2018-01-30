@@ -1,15 +1,10 @@
-<!-- isaw-bib.html -->
-
-<html>
-<body>
-  <h1>Bibliography</h1>
+{% extends "base.html" %}        
+{% block content %}
+<h1>Bibliography</h1>
         <p>There are {{count}} items in this collection.</p>
-        {% for item in isawbib %}
-            <div>{{item['data']['title']}} 
-                <a href="{{item['links']['alternate']['href']}}" target="_blank">
-                    <img src="{{ url_for('static', filename='icon_linkout.png') }}" height=12 width=12>
-                </a>
+        {% for item in items %}
+            <div class="citation">
+                {{item['citation'] | safe}} <a href="{{item['links']['alternate']['href']}}" target="_blank"><img src="{{ url_for('static', filename='icon_linkout.png') }}" height=12 width=12></a>
             </div>
         {% endfor %}
-</body>
-</html>
+{% endblock %}
