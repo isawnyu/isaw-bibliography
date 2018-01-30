@@ -1,0 +1,11 @@
+<!-- isaw-bib.html -->
+
+<html>
+<body>
+  <h1>Bibliography</h1>
+        <p>There are {{count}} items in this collection.</p>
+        {% for item in isawbib %}
+            <div>{{item['data']['title']}}</div>
+        {% endfor %}
+</body>
+</html>
