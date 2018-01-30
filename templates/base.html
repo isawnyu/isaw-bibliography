@@ -4,7 +4,7 @@
     {% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-<!---    <title>{% block title %}{% endblock %} - My Webpage</title>--->
+      <title>{% block title %}{% endblock %}ISAW Bibliography</title>--->
     {% endblock %}
   </head>
   <body>
@@ -12,13 +12,11 @@
         <div id="content">
             {% block content %}{% endblock %}
         </div>
-
-    <div id="footer">
-      {% block footer %}
-      <br><br>Developed by <a href="#">ISAW Lib</a>.
-      {% endblock %}
+        <div id="footer">
+          {% block footer %}
+          <br><br>Developed by Patrick J. Burns, <a href="http://isaw.nyu.edu/library" target="_blank">ISAW Library</a>.
+          {% endblock %}
+        </div>
     </div>
-        
-            </div>
   </body>
 </html>
