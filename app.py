@@ -16,18 +16,64 @@ isawbib_json = z.everything(z.top())
 cit = z.add_parameters(content='bib', style='mla')
 isawbib_cit = z.everything(z.top())
 
+# More elegant way to write this?
+for i, item in enumerate(isawbib_cit):
+    isawbib_json[i]['citation'] = item
+
+
+def _sort_zotero_date(zotero_items, reverse=True):
+    return sorted(zotero_items, key=lambda k: k['data']['date'], reverse=reverse)
+
+
 @app.route('/')
 def homepage():
-    count = len(isawbib_json)
-    #tags = get_tags(isawbib)
-    return render_template('isaw-bibliography.html', isawbib=isawbib_json, count=count)
+    items = isawbib_json
+    count = len(items)
+    items = _sort_zotero_date(items) 
+    return render_template('isaw-bibliography.html', items=items, count=count)
 
 
-@app.route('/bib')
-def bib():
-    count = len(isawbib_cit)
-    #tags = get_tags(isawbib)
-    return render_template('isaw-citations.html', isawbib=isawbib_cit, count=count)
+@app.route('/year/<year>')
+def bib_by_year(year):
+    items = []
+    for item in isawbib_json:
+        if item['data']['date'] == year:
+            items.append(item)
+    count = len(items)
+    items = _sort_zotero_date(items) 
+    return render_template('isaw-bibliography.html', items=items, count=count)
+
+
+@app.route('/author/<author>')
+@app.route('/authors/<author>')
+def bib_by_author(author):
+    items = []
+    for item in isawbib_json:
+        for creator in item['data']['creators']:
+            for authors in creator.values():
+                if author.lower() in authors.lower():
+                    items.append(item)
+    count = len(items)
+    items = _sort_zotero_date(items) 
+    return render_template('isaw-bibliography.html', items=items, count=count)
+
+
+@app.route('/tag/<tag>')
+@app.route('/tags/<tag>')
+def bib_by_tag(tag):
+    items = []
+    for item in isawbib_json:
+        for tags in item['data']['tags']:
+            if tag in tags.values():
+                items.append(item)
+    count = len(items)
+    items = _sort_zotero_date(items) 
+    return render_template('isaw-bibliography.html', items=items, count=count)
+    
+
+@app.route('/json')
+def print_first_record():
+    return render_template('isaw-json.html', item=isawbib_json[0])
 
 
 if __name__ == '__main__':
