@@ -13,7 +13,7 @@ api_key = os.getenv('API_KEY')
 
 z = zotero.Zotero(library_id, library_type, api_key)
 isawbib_json = z.everything(z.top(sort="dateModified"))
-cit = z.add_parameters(content='bib', style='tapa', sort="dateModified")
+cit = z.add_parameters(content='bib', style='mla', sort="dateModified")
 isawbib_cit = z.everything(z.top())
 
 # More elegant way to write this?
@@ -27,8 +27,6 @@ def _sort_zotero_date(zotero_items, reverse=True):
 @app.route('/')
 def homepage():
 	items = isawbib_json
-	from pprint import pprint
-	pprint(items)
 	count = len(items)
 	items = _sort_zotero_date(items)
 	return render_template('isaw-bibliography.html', title=None, items=items, count=count)
