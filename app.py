@@ -13,7 +13,7 @@ api_key = os.getenv('API_KEY')
 
 z = zotero.Zotero(library_id, library_type, api_key)
 isawbib_json = z.everything(z.top(sort="dateModified"))
-cit = z.add_parameters(content='bib', style='mla', sort="dateModified")
+cit = z.add_parameters(content='bib', style='tapa', sort="dateModified")
 isawbib_cit = z.everything(z.top())
 
 # More elegant way to write this?
