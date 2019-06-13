@@ -42,7 +42,7 @@ def _sort_zotero_date(zotero_items, reverse=True):
 def get_zotero_data():
 	z = zotero.Zotero(library_id, library_type, api_key)
 	isawbib_json = z.everything(z.top(sort="dateModified"))
-	cit = z.add_parameters(content='bib', style='mla', sort="dateModified")
+	cit = z.add_parameters(content='bib', style='https://www.zotero.org/styles/transactions-of-the-american-philological-association', sort="dateModified")
 	isawbib_cit = z.everything(z.top())
 
 	# More elegant way to write this?
@@ -53,6 +53,7 @@ def get_zotero_data():
 	items = _sort_zotero_date(items)
 	return items, count
 
+
 @app.route('/')
 def homepage():
 	items = isawbib_json
@@ -62,6 +63,7 @@ def homepage():
 
 
 @app.route('/refresh')
+# Fix refresh to use FDA scripts
 def refresh():
 	items, count = get_zotero_data()
 	count = len(items)
