@@ -29,7 +29,7 @@ for item in isawbib_json:
             item['links']['alternate']['href'] = fda_data[item['data']['archiveLocation']]
 
 # Add citations
-cit = z.add_parameters(content='bib', style='https://www.zotero.org/styles/transactions-of-the-american-philological-association', sort="dateModified")
+cit = z.add_parameters(content='bib', style='mla', sort="dateModified")
 isawbib_cit = z.everything(z.top())
 
 # More elegant way to write this?
@@ -42,7 +42,8 @@ def _sort_zotero_date(zotero_items, reverse=True):
 def get_zotero_data():
 	z = zotero.Zotero(library_id, library_type, api_key)
 	isawbib_json = z.everything(z.top(sort="dateModified"))
-	cit = z.add_parameters(content='bib', style='https://www.zotero.org/styles/transactions-of-the-american-philological-association', sort="dateModified")
+	# cit = z.add_parameters(content='bib', style='https://www.zotero.org/styles/transactions-of-the-american-philological-association', sort="dateModified")
+    cit = z.add_parameters(content='bib', style='mla', sort="dateModified")
 	isawbib_cit = z.everything(z.top())
 
 	# More elegant way to write this?
