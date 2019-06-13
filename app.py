@@ -23,10 +23,31 @@ for i, item in enumerate(isawbib_cit):
 def _sort_zotero_date(zotero_items, reverse=True):
     return sorted(zotero_items, key=lambda k: k['data']['date'], reverse=reverse)
 
+def get_zotero_data():
+	z = zotero.Zotero(library_id, library_type, api_key)
+	isawbib_json = z.everything(z.top(sort="dateModified"))
+	cit = z.add_parameters(content='bib', style='mla', sort="dateModified")
+	isawbib_cit = z.everything(z.top())
+
+	# More elegant way to write this?
+	for i, item in enumerate(isawbib_cit):
+	    isawbib_json[i]['data']['citation'] = item
+	items = isawbib_json
+	count = len(items)
+	items = _sort_zotero_date(items)
+	return items, count
 
 @app.route('/')
 def homepage():
 	items = isawbib_json
+	count = len(items)
+	items = _sort_zotero_date(items)
+	return render_template('isaw-bibliography.html', title=None, items=items, count=count)
+
+
+@app.route('/refresh')
+def refresh():
+	items, count = get_zotero_data()
 	count = len(items)
 	items = _sort_zotero_date(items)
 	return render_template('isaw-bibliography.html', title=None, items=items, count=count)
