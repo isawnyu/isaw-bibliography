@@ -1,4 +1,7 @@
 import os
+
+import csv
+
 from flask import Flask, render_template
 from pyzotero import zotero
 
@@ -13,6 +16,19 @@ api_key = os.getenv('API_KEY')
 
 z = zotero.Zotero(library_id, library_type, api_key)
 isawbib_json = z.everything(z.top(sort="dateModified"))
+
+# Work with FDA-specific data for Bagnall works
+# Need to speed up—cache data???
+with open('data/2451-28115.csv') as f:
+    reader = csv.reader(f)
+    fda_data = {row[12]: row[8] for row in reader if row[12]}
+
+for item in isawbib_json:
+    if item['data']['archive'] == 'https://archive.nyu.edu/handle/2451/28115':
+        if item['data']['archiveLocation'] in fda_data.keys():
+            item['links']['alternate']['href'] = fda_data[item['data']['archiveLocation']]
+
+# Add citations
 cit = z.add_parameters(content='bib', style='https://www.zotero.org/styles/transactions-of-the-american-philological-association', sort="dateModified")
 isawbib_cit = z.everything(z.top())
 
@@ -93,7 +109,7 @@ def bib_by_tag(tag):
 
 @app.route('/json')
 def print_first_record():
-    return render_template('isaw-json.html', item=isawbib_json[0])
+    return render_template('isaw-json.html', item=isawbib_json[400])
 
 
 if __name__ == '__main__':
