@@ -2,7 +2,7 @@ import os
 
 import csv
 
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for
 from pyzotero import zotero
 
 from pprint import pprint
@@ -29,12 +29,42 @@ for item in isawbib_json:
             item['links']['alternate']['href'] = fda_data[item['data']['archiveLocation']]
 
 # Add citations
-cit = z.add_parameters(content='bib', style='mla', sort="dateModified")
+cit = z.add_parameters(content='bib', style='https://raw.githubusercontent.com/diyclassics/isaw-bibliography/master/static/csl/mla-isawbib-author.csl', sort="dateModified")
 isawbib_cit = z.everything(z.top())
+
+# Helper function to format citations
+def fix_citations(cit):
+	match = 'Bagnall, Roger S.'
+	open = '<div class="csl-entry">'
+	close = '</div>'
+
+	cit = cit.replace(open,'').replace(close,'')
+
+	# x = "Bagnall, Roger S.|J. F. Oates|W.H.Willis~“A Checklist of Editions of Greek Papyri and Ostraca”~Bulletin of the American Society of Papyrologists, vol. 11, 1974, pp. 1–35~https://archive.nyu.edu/handle/2451/28115, D13."
+	author = cit.split('~')[0]
+	bib = cit.split('~')[1:]
+
+	authors = author.split('|')
+
+	if match in authors:
+		authors.remove(match)
+
+	print(authors)
+
+	if len(authors) == 2:
+		withs = " and ".join(authors)
+		withs = '(with '+withs+')'
+	elif len(authors) > 2:
+		withs = ", ".join(authors[:-1])+', and '+authors[-1]
+		withs = '(with '+withs+')'
+	else:
+		withs = ''
+
+	return open+". ".join(bib) + withs + close
 
 # More elegant way to write this?
 for i, item in enumerate(isawbib_cit):
-    isawbib_json[i]['data']['citation'] = item
+	isawbib_json[i]['data']['citation'] = fix_citations(item)
 
 def _sort_zotero_date(zotero_items, reverse=True):
     return sorted(zotero_items, key=lambda k: k['data']['date'], reverse=reverse)
