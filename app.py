@@ -1,6 +1,7 @@
 import os
 
 import csv
+import re
 
 from flask import Flask, render_template, url_for
 from pyzotero import zotero
@@ -30,41 +31,93 @@ for item in isawbib_json:
 
 # Add citations
 cit = z.add_parameters(content='bib', style='https://raw.githubusercontent.com/diyclassics/isaw-bibliography/master/static/csl/mla-isawbib-author.csl', sort="dateModified")
+
 isawbib_cit = z.everything(z.top())
 
 # Helper function to format citations
-def fix_citations(cit):
-	match = 'Bagnall, Roger S.'
-	open = '<div class="csl-entry">'
-	close = '</div>'
+def fix_citations_auth(cit):
+    match = 'Bagnall, Roger S.'
+    open = '<div class="csl-entry">'
+    close = '</div>'
 
-	cit = cit.replace(open,'').replace(close,'')
+    cit = cit.replace(open,'').replace(close,'')
 
-	# x = "Bagnall, Roger S.|J. F. Oates|W.H.Willis~“A Checklist of Editions of Greek Papyri and Ostraca”~Bulletin of the American Society of Papyrologists, vol. 11, 1974, pp. 1–35~https://archive.nyu.edu/handle/2451/28115, D13."
-	author = cit.split('~')[0]
-	bib = cit.split('~')[1:]
+    # x = "Bagnall, Roger S.|J. F. Oates|W.H.Willis~“A Checklist of Editions of Greek Papyri and Ostraca”~Bulletin of the American Society of Papyrologists, vol. 11, 1974, pp. 1–35~https://archive.nyu.edu/handle/2451/28115, D13."
+    author = cit.split('~')[0]
+    bib = cit.split('~')[1:]
 
-	authors = author.split('|')
+    authors = author.split('|')
 
-	if match in authors:
-		authors.remove(match)
+    if match in authors:
+        authors.remove(match)
 
-	print(authors)
+    # print(authors)
 
-	if len(authors) == 2:
-		withs = " and ".join(authors)
-		withs = '(with '+withs+')'
-	elif len(authors) > 2:
-		withs = ", ".join(authors[:-1])+', and '+authors[-1]
-		withs = '(with '+withs+')'
-	else:
-		withs = ''
+    if len(authors) == 2:
+        withs = " and ".join(authors)
+        withs = ' (with '+withs+')'
+    elif len(authors) > 2:
+        withs = ", ".join(authors[:-1])+', and '+authors[-1]
+        withs = ' (with '+withs+')'
+    else:
+        withs = ''
 
-	return open+". ".join(bib) + withs + close
+    bib = ". ".join(bib)
+
+    # if auths.endswith('.'):
+    #     bib = auths + ' ' + bib
+    # else:
+    #     bib = auths + '. ' + bib
+
+    bib = open + bib + withs + close
+
+    bib = bib.replace('https://archive.nyu.edu/handle/2451/28115,', 'NYU FDA Entry').replace('https://archive.nyu.edu/handle/2451/28115.', '')
+
+    bib = re.sub(r'(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:;%_\+.~#?&//=]*))', '<a href=\'\g<1>\'>\g<1></a>', bib)
+
+    return bib
+
+
+
+def fix_citations_main(cit):
+    match = 'Bagnall, Roger S.'
+    open = '<div class="csl-entry">'
+    close = '</div>'
+
+    cit = cit.replace(open,'').replace(close,'')
+
+    # x = "Bagnall, Roger S.|J. F. Oates|W.H.Willis~“A Checklist of Editions of Greek Papyri and Ostraca”~Bulletin of the American Society of Papyrologists, vol. 11, 1974, pp. 1–35~https://archive.nyu.edu/handle/2451/28115, D13."
+    author = cit.split('~')[0]
+    bib = cit.split('~')[1:]
+
+    authors = author.split('|')
+
+    if len(authors) == 2:
+        auths = " and ".join(authors)
+    elif len(authors) > 2:
+        auths = ", ".join(authors[:-1])+', and '+authors[-1]
+    else:
+        auths = author
+
+    bib = ". ".join(bib)
+
+    if auths.endswith('.'):
+        bib = auths + ' ' + bib
+    else:
+        bib = auths + '. ' + bib
+
+    bib = open + bib + close
+
+    bib = bib.replace('https://archive.nyu.edu/handle/2451/28115,', 'NYU FDA Entry').replace('https://archive.nyu.edu/handle/2451/28115.', '')
+
+    bib = re.sub(r'(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:;%_\+.~#?&//=]*))', '<a href=\'\g<1>\'>\g<1></a>', bib)
+
+    return bib
 
 # More elegant way to write this?
 for i, item in enumerate(isawbib_cit):
-	isawbib_json[i]['data']['citation'] = fix_citations(item)
+    isawbib_json[i]['data']['citation'] = fix_citations_main(item)
+    isawbib_json[i]['data']['citation_auth'] = fix_citations_auth(item)
 
 def _sort_zotero_date(zotero_items, reverse=True):
     return sorted(zotero_items, key=lambda k: k['data']['date'], reverse=reverse)
@@ -87,10 +140,12 @@ def get_zotero_data():
 
 @app.route('/')
 def homepage():
-	items = isawbib_json
-	count = len(items)
-	items = _sort_zotero_date(items)
-	return render_template('isaw-bibliography.html', title=None, items=items, count=count)
+    items = isawbib_json
+    count = len(items)
+    items = _sort_zotero_date(items)
+    for item in isawbib_json:
+        item['data']['citation_'] = item['data']['citation']
+    return render_template('isaw-bibliography.html', title=None, items=items, count=count)
 
 
 @app.route('/refresh')
@@ -108,6 +163,7 @@ def bib_by_year(year):
     for item in isawbib_json:
         if item['data']['date'] == year:
             items.append(item)
+        item['data']['citation_'] = item['data']['citation']
     count = len(items)
     items = _sort_zotero_date(items)
     return render_template('isaw-bibliography.html', title='Year: %s' % str(year), items=items, count=count)
@@ -122,6 +178,8 @@ def bib_by_author(author):
             for authors in creator.values():
                 if author.lower() in authors.lower():
                     items.append(item)
+        item['data']['citation_'] = item['data']['citation_auth']
+
     count = len(items)
     items = _sort_zotero_date(items)
     return render_template('isaw-bibliography.html', title='Author: %s' % author, items=items, count=count)

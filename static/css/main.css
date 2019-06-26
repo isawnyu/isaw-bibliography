@@ -3,5 +3,20 @@
 }
 
 .citation {
+    color: #000000;
     margin-bottom: 4px;
+    padding-left: 30px ;
+    text-indent: -30px ;
+}
+
+a, a:visited, a:active {
+  color: #000000;
+  text-decoration: none;
+  border-bottom: 1px black dotted;
+}
+
+a:hover {
+  color: #808080;
+  text-decoration: none;
+  border: 1px #808080 dotted;
 }
