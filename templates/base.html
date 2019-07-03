@@ -4,6 +4,7 @@
     {% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
       <title>ISAW Bibliography {% block title %}{% endblock %}</title>
     {% endblock %}
   </head>
@@ -14,7 +15,7 @@
         </div>
         <div id="footer">
           {% block footer %}
-          <br><br>Developed by Patrick J. Burns, <a href="http://isaw.nyu.edu/library" target="_blank">ISAW Library</a>.
+          <p>Developed by Patrick J. Burns, <a href="http://isaw.nyu.edu/library" target="_blank">ISAW Library</a>.</p>
           {% endblock %}
         </div>
     </div>

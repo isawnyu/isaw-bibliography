@@ -20,3 +20,7 @@ a:hover {
   text-decoration: none;
   border: 1px #808080 dotted;
 }
+
+#footer {
+  margin-top: 25px;
+}

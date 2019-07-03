@@ -3,8 +3,10 @@ import os
 import csv
 import re
 
-from flask import Flask, render_template, url_for
+from flask import Flask, Markup, render_template, url_for
 from pyzotero import zotero
+
+from collections import Counter
 
 from pprint import pprint
 
@@ -196,6 +198,37 @@ def bib_by_tag(tag):
     count = len(items)
     items = _sort_zotero_date(items)
     return render_template('isaw-bibliography.html', title='Tag: %s' % tag, items=items, count=count)
+
+
+@app.route('/author/<author>/chart')
+@app.route('/authors/<author>/chart')
+def chart(author):
+
+    items = []
+    for item in isawbib_json:
+        for creator in item['data']['creators']:
+            for authors in creator.values():
+                if author.lower() in authors.lower():
+                    items.append(item)
+
+    year_count = sorted(Counter([item['data']['date'] for item in items if item['data']['date'].isnumeric()]).most_common())
+    labels, values = zip(*year_count)
+    max_value = max(values)
+    print(max_value)
+    return render_template('isaw-bibliography-chart.html', author=author, values=values, labels=labels, max_value=max_value)
+# def bib_by_author(author):
+#     items = []
+#     for item in isawbib_json:
+#         for creator in item['data']['creators']:
+#             for authors in creator.values():
+#                 if author.lower() in authors.lower():
+#                     items.append(item)
+#         item['data']['citation_'] = item['data']['citation_auth']
+#
+#     count = len(items)
+#     items = _sort_zotero_date(items)
+    # return render_template('isaw-bibliography-chart.html', title='Author: %s' % author, items=items, count=count)
+    # return render_template('isaw-bibliography-chart.html', title='Author: %s' % author, labels=labels, values=values)
 
 
 @app.route('/json')
