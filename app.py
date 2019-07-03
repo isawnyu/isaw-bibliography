@@ -211,25 +211,18 @@ def chart(author):
                 if author.lower() in authors.lower():
                     items.append(item)
 
-    year_count = sorted(Counter([item['data']['date'] for item in items if item['data']['date'].isnumeric()]).most_common())
+    year_count = Counter([int(item['data']['date']) for item in items if item['data']['date'].isnumeric()])
+
+    # Fill in missing years
+    min_key = min(year_count)
+    max_key = max(year_count)
+    year_count.update(dict.fromkeys(set(range(min_key, max_key+1)).difference(year_count), 0))
+
+    year_count = sorted(year_count.most_common())
     labels, values = zip(*year_count)
     max_value = max(values)
-    print(max_value)
-    return render_template('isaw-bibliography-chart.html', author=author, values=values, labels=labels, max_value=max_value)
-# def bib_by_author(author):
-#     items = []
-#     for item in isawbib_json:
-#         for creator in item['data']['creators']:
-#             for authors in creator.values():
-#                 if author.lower() in authors.lower():
-#                     items.append(item)
-#         item['data']['citation_'] = item['data']['citation_auth']
-#
-#     count = len(items)
-#     items = _sort_zotero_date(items)
-    # return render_template('isaw-bibliography-chart.html', title='Author: %s' % author, items=items, count=count)
-    # return render_template('isaw-bibliography-chart.html', title='Author: %s' % author, labels=labels, values=values)
 
+    return render_template('isaw-bibliography-chart.html', author=author, values=values, labels=labels, max_value=max_value)
 
 @app.route('/json')
 def print_first_record():
