@@ -13,58 +13,38 @@
 <h1>ISAW Bibliography</h1>
 <h2>{{ author|title }} Publication Counts by Year</h2>
 <!-- bar chart canvas element -->
-<canvas id="chart" width="960" height="720"></canvas>
+<canvas id="myChart" width="960" height="720"></canvas>
 
 <script>
-
-   // bar chart data
-   var barData = {
-   labels : [{% for item in labels %}
-              "{{item}}",
-          {% endfor %}],
-   datasets : [
-      {
-        fillColor: "rgba(151,187,205,0.2)",
-        strokeColor: "rgba(151,187,205,1)",
-        pointColor: "rgba(151,187,205,1)",
-        pointStrokeColor: "#fff",
-        pointHighlightFill: "#fff",
-        pointHighlightStroke: "rgba(151,187,205,1)",
-        bezierCurve : false,
-        data : [{% for item in values %}
+var xValues = [{% for item in labels %}
                   {{item}},
                 {% endfor %}]
-      }]
-   }
 
-    Chart.defaults.global.animationSteps = 50;
-    Chart.defaults.global.tooltipYPadding = 16;
-    Chart.defaults.global.tooltipCornerRadius = 0;
-    Chart.defaults.global.tooltipTitleFontStyle = "normal";
-    Chart.defaults.global.tooltipFillColor = "rgba(0,0,0,0.8)";
-    Chart.defaults.global.animationEasing = "easeOutBounce";
-    Chart.defaults.global.responsive = false;
-    Chart.defaults.global.scaleLineColor = "black";
-    Chart.defaults.global.scaleFontSize = 16;
+var yValues = [{% for item in values %}
+                  {{item}},
+                {% endfor %}]
 
-   // get bar chart canvas
-   var mychart = document.getElementById("chart").getContext("2d");
+new Chart("myChart", {
+  type: "line",
+  data: {
+    labels: xValues,
+    datasets: [{
+      fill: false,
+      lineTension: 0,
+      backgroundColor: "rgba(0,0,255,1.0)",
+      borderColor: "rgba(0,0,255,0.1)",
+      data: yValues
+    }]
+  },
+  options: {
+    scales: {
+      yAxes: [{ticks: {min: 6, max:16}}],
+    },
+    plugins: {
+        legend: false,
+    },
+  }
+});
 
-   steps = 4
-   max = {{ max_value }} + 1
-
-   // draw bar chart
-   var LineChartDemo = new Chart(mychart).Line(barData, {
-    scaleOverride: true,
-    scaleSteps: steps,
-    scaleStepWidth: Math.ceil(max / steps),
-    scaleStartValue: 0,
-    scaleShowVerticalLines: true,
-    scaleShowGridLines : true,
-    barShowStroke : true,
-    scaleShowLabels: true,
-    bezierCurve: false,
-    pointHitDetectionRadius : 1}
-   );
 </script>
 {% endblock %}
